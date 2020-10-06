@@ -20,7 +20,9 @@ import android.animation.ValueAnimator
 import android.app.Service
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.opengl.Matrix
 import android.service.wallpaper.WallpaperService
+import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -29,14 +31,19 @@ import android.view.animation.LinearInterpolator
 import com.google.android.filament.*
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
-
+import com.google.android.filament.gltfio.*
+import com.google.android.filament.utils.Mat4
+import com.google.android.filament.utils.MatrixColumn
+import com.google.android.filament.utils.Utils
+import com.google.android.filament.utils.perspective
+import java.nio.ByteBuffer
+import java.util.Arrays.copyOf
 
 class FilamentLiveWallpaper : WallpaperService() {
-    // Make sure to initialize Filament first
-    // This loads the JNI library needed by most API calls
+    // Load the library for the utility layer, which in turn loads gltfio and the Filament core.
     companion object {
         init {
-            Filament.init()
+            Utils.init()
         }
     }
 
@@ -66,6 +73,8 @@ class FilamentLiveWallpaper : WallpaperService() {
         // Should be pretty obvious :)
         private lateinit var camera: Camera
 
+        @Entity var light: Int? = null
+
         // A swap chain is Filament's representation of a surface
         private var swapChain: SwapChain? = null
 
@@ -74,6 +83,13 @@ class FilamentLiveWallpaper : WallpaperService() {
 
         // We'll use this ValueAnimator to smoothly cycle the background between hues.
         private val animator = ValueAnimator.ofFloat(0.0f, 360.0f)
+
+        private var asset: FilamentAsset? = null
+
+        private lateinit var assetLoader: AssetLoader
+        private lateinit var resourceLoader: ResourceLoader
+
+        private lateinit var assetAnimator: Animator
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
@@ -88,6 +104,144 @@ class FilamentLiveWallpaper : WallpaperService() {
             setupFilament()
             setupView()
             setupScene()
+
+            // Load the glTF asset
+            assetLoader = AssetLoader(engine, MaterialProvider(engine), EntityManager.get())
+            resourceLoader = ResourceLoader(engine, false, true)
+
+            // Always add a direct light source since it is required for shadowing.
+            // We highly recommend adding an indirect light as well.
+
+            light = EntityManager.get().create()
+
+            val (r, g, b) = Colors.cct(6_500.0f)
+            LightManager.Builder(LightManager.Type.DIRECTIONAL)
+                    .color(r, g, b)
+                    .intensity(10000.0f)
+                    .direction(-0.1f, -0.3f, -0.7f)
+                    .castShadows(true)
+                    .build(engine, light!!)
+
+            scene.addEntity(light!!)
+
+            val buffer = assets.open("models/rollinghills.glb").use { input ->
+                val bytes = ByteArray(input.available())
+                input.read(bytes)
+                ByteBuffer.wrap(bytes)
+            }
+
+            asset = assetLoader.createAssetFromBinary(buffer)
+            asset?.let { asset ->
+                resourceLoader.loadResources(asset)
+                assetAnimator = asset.animator
+                asset.releaseSourceData()
+
+                scene.addEntities(asset.entities)
+
+                asset.cameraEntities.firstOrNull()?.let { camera ->
+                    val cam = engine.getCameraComponent(camera)
+                    //view.camera = cam
+
+                    val pm = cam?.getCullingProjectionMatrix(null)
+                    val n = cam?.near
+                    val f = cam?.cullingFar
+
+                    if (n != null && f != null) {
+                        Log.d("Live wallpaper", n.toString())
+                        Log.d("Live wallpaper", f.toString())
+                    }
+
+                    if (pm != null) {
+                        Log.d("Live wallpaper", "here 0")
+                        Log.d("Live wallpaper", pm[0].toString())
+                        Log.d("Live wallpaper", pm[1].toString())
+                        Log.d("Live wallpaper", pm[2].toString())
+                        Log.d("Live wallpaper", pm[3].toString())
+                        Log.d("Live wallpaper", "here 1")
+                        Log.d("Live wallpaper", pm[4].toString())
+                        Log.d("Live wallpaper", pm[5].toString())
+                        Log.d("Live wallpaper", pm[6].toString())
+                        Log.d("Live wallpaper", pm[7].toString())
+                        Log.d("Live wallpaper", "here 2")
+                        Log.d("Live wallpaper", pm[8].toString())
+                        Log.d("Live wallpaper", pm[9].toString())
+                        Log.d("Live wallpaper", pm[10].toString())
+                        Log.d("Live wallpaper", pm[11].toString())
+                        Log.d("Live wallpaper", "here 3")
+                        Log.d("Live wallpaper", pm[12].toString())
+                        Log.d("Live wallpaper", pm[13].toString())
+                        Log.d("Live wallpaper", pm[14].toString())
+                        Log.d("Live wallpaper", pm[15].toString())
+                        Log.d("Live wallpaper", "here 4")
+                        Log.d("Live wallpaper", "------------")
+                    }
+
+                    //Log.d("Live wallpaper sample", pm.toString())
+
+                    if (cam != null && pm != null) {
+                        val npm = pm.clone()
+
+                        val m = perspective(50.0f, 1.0f, 0.1f, 1.00f)
+                        val ma = m.toFloatArray()
+                        Log.d("Live wallpaper", "here 0")
+                        Log.d("Live wallpaper", ma[0].toString())
+                        Log.d("Live wallpaper", ma[1].toString())
+                        Log.d("Live wallpaper", ma[2].toString())
+                        Log.d("Live wallpaper", ma[3].toString())
+                        Log.d("Live wallpaper", "here 1")
+                        Log.d("Live wallpaper", ma[4].toString())
+                        Log.d("Live wallpaper", ma[5].toString())
+                        Log.d("Live wallpaper", ma[6].toString())
+                        Log.d("Live wallpaper", ma[7].toString())
+                        Log.d("Live wallpaper", "here 2")
+                        Log.d("Live wallpaper", ma[8].toString())
+                        Log.d("Live wallpaper", ma[9].toString())
+                        Log.d("Live wallpaper", ma[10].toString())
+                        Log.d("Live wallpaper", ma[11].toString())
+                        Log.d("Live wallpaper", "here 3")
+                        Log.d("Live wallpaper", ma[12].toString())
+                        Log.d("Live wallpaper", ma[13].toString())
+                        Log.d("Live wallpaper", ma[14].toString())
+                        Log.d("Live wallpaper", ma[15].toString())
+                        Log.d("Live wallpaper", "here 4")
+
+                        /*
+                        val ben = doubleArrayOf(
+                                2.777, 0.0, 0.0, 0.0,
+                                0.0, 2.777, 0.0, 0.0,
+                                0.0, 0.0, -1.002, -1.0,
+                                0.0, 0.0, -0.222, 0.0
+                        )
+
+                         */
+                        val ben = doubleArrayOf(
+                                6.777, 0.0, 0.0, 0.0,
+                                0.0, 6.777, 0.0, 0.0,
+                                0.0, 0.788, -1.002, -1.0,
+                                0.0, 0.0, -0.222, 0.0
+                        )
+
+                        //cam.setProjection(Camera.Projection.PERSPECTIVE, -0.05, 0.05, 0.03, 0.13, 0.1, 100.0)
+                        //cam.setProjection(Camera.Projection.PERSPECTIVE, -0.05, 0.05, 0.03, 0.13, 0.1, 100.0)
+
+                        //cam.setProjection(40.0, 1.0, 0.1, 100.0, Camera.Fov.VERTICAL)
+                        cam.setCustomProjection(ben, 0.1, 100.0)
+                        val scaling = cam?.getScaling(null)
+                        if (scaling != null) {
+                            Log.d("Live wallpaper scaling", scaling[0].toString())
+                            Log.d("Live wallpaper scaling", scaling[1].toString())
+                            Log.d("Live wallpaper scaling", scaling[2].toString())
+                            Log.d("Live wallpaper scaling", scaling[3].toString())
+                        }
+                        //cam.setCustomProjection(ben, 0.1, 100.0)
+                        //val r = cam.getProjectionMatrix(null)
+                        /*
+                         */
+                    }
+                    view.camera = cam
+
+                }
+            }
         }
 
         private fun setupUiHelper() {
@@ -105,7 +259,7 @@ class FilamentLiveWallpaper : WallpaperService() {
         }
 
         private fun setupView() {
-            scene.skybox = Skybox.Builder().build(engine)
+            scene.skybox = Skybox.Builder().color(floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)).build(engine)
 
             // NOTE: Try to disable post-processing (tone-mapping, etc.) to see the difference
             // view.isPostProcessingEnabled = false
@@ -115,6 +269,12 @@ class FilamentLiveWallpaper : WallpaperService() {
 
             // Tell the view which scene we want to render
             view.scene = scene
+
+            val bo = View.BloomOptions()
+            bo.enabled = true
+            bo.highlight = 10.0f
+            bo.strength = 5.0f
+            view.bloomOptions = bo
         }
 
         private fun setupScene() {
@@ -130,6 +290,7 @@ class FilamentLiveWallpaper : WallpaperService() {
             animator.duration = 10000
             animator.repeatMode = ValueAnimator.RESTART
             animator.repeatCount = ValueAnimator.INFINITE
+            /*
             animator.addUpdateListener { a ->
                 val hue = a.animatedValue as Float
                 val color = Color.HSVToColor(floatArrayOf(hue, 1.0f, 1.0f))
@@ -139,6 +300,7 @@ class FilamentLiveWallpaper : WallpaperService() {
                         Color.blue(color)  / 255.0f,
                         1.0f))
             }
+             */
             animator.start()
         }
 
@@ -175,9 +337,16 @@ class FilamentLiveWallpaper : WallpaperService() {
         }
 
         inner class FrameCallback : Choreographer.FrameCallback {
+            private val startTime = System.nanoTime()
+
             override fun doFrame(frameTimeNanos: Long) {
                 // Schedule the next frame
                 choreographer.postFrameCallback(this)
+
+                if (assetAnimator.animationCount > 0) {
+                    val elapsedTimeSeconds = (frameTimeNanos - startTime).toDouble() / 1_000_000_000 / 4.0
+                    assetAnimator.applyAnimation(0, elapsedTimeSeconds.toFloat())
+                }
 
                 // This check guarantees that we have a swap chain
                 if (uiHelper.isReadyToRender) {
@@ -216,6 +385,8 @@ class FilamentLiveWallpaper : WallpaperService() {
             override fun onResized(width: Int, height: Int) {
                 val aspect = width.toDouble() / height.toDouble()
                 camera.setProjection(45.0, aspect, 0.1, 20.0, Camera.Fov.VERTICAL)
+
+                view.camera?.setScaling(doubleArrayOf(1.0 * 1.5, aspect * 1.5, 1.0, 1.0))
 
                 view.viewport = Viewport(0, 0, width, height)
             }

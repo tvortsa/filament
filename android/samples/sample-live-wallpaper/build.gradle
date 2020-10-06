@@ -1,8 +1,22 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: FilamentToolsPlugin
 
 project.ext.isSample = true
+
+// TODO: get rid of this before PR
+task copyMesh(type: Copy) {
+    from "/Users/bendoherty/Desktop/2020-10-06_WallpaperRollingHills/blender/rollinghills.glb"
+    into "src/main/assets/models"
+}
+
+preBuild.dependsOn copyMesh
+
+// TODO: this too
+clean.doFirst {
+    delete "src/main/assets"
+}
 
 android {
     compileSdkVersion versions.compileSdk
@@ -10,10 +24,13 @@ android {
         applicationId "com.google.android.filament.livewallpaper"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
+        missingDimensionStrategy 'functionality', 'full'
     }
 }
 
 dependencies {
     implementation deps.kotlin
     implementation project(':filament-android')
+    implementation project(':gltfio-android')
+    implementation project(':filament-utils-android')
 }
