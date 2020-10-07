@@ -16,11 +16,10 @@
 
 package com.google.android.filament.utils
 
-import android.view.MotionEvent
-import android.view.Surface
-import android.view.SurfaceView
-import android.view.TextureView
+import android.content.Context
+import android.view.*
 import com.google.android.filament.*
+import com.google.android.filament.View
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.*
@@ -83,6 +82,7 @@ class ModelViewer(val engine: Engine) : android.view.View.OnTouchListener {
     private lateinit var cameraManipulator: Manipulator
     private lateinit var gestureDetector: GestureDetector
     private var surfaceView: SurfaceView? = null
+    private var surfaceHolder: SurfaceHolder? = null
     private var textureView: TextureView? = null
 
     private var fetchResourcesJob: Job? = null
@@ -99,6 +99,11 @@ class ModelViewer(val engine: Engine) : android.view.View.OnTouchListener {
 
     init {
         renderer = engine.createRenderer()
+        // TODO: use a skybox instead in Wallpaper.kt
+        val clearOptions = Renderer.ClearOptions()
+        clearOptions.clear = true
+        clearOptions.clearColor = floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f)
+        renderer.clearOptions = clearOptions
         scene = engine.createScene()
         camera = engine.createCamera().apply { setExposure(kAperture, kShutterSpeed, kSensitivity) }
         view = engine.createView()
@@ -131,7 +136,7 @@ class ModelViewer(val engine: Engine) : android.view.View.OnTouchListener {
                 .build(Manipulator.Mode.ORBIT)
 
         this.surfaceView = surfaceView
-        gestureDetector = GestureDetector(surfaceView, cameraManipulator)
+        gestureDetector = GestureDetector(surfaceView.height, cameraManipulator)
         displayHelper = DisplayHelper(surfaceView.context)
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(surfaceView)
@@ -146,11 +151,25 @@ class ModelViewer(val engine: Engine) : android.view.View.OnTouchListener {
                 .build(Manipulator.Mode.ORBIT)
 
         this.textureView = textureView
-        gestureDetector = GestureDetector(textureView, cameraManipulator)
+        gestureDetector = GestureDetector(textureView.height, cameraManipulator)
         displayHelper = DisplayHelper(textureView.context)
         uiHelper.renderCallback = SurfaceCallback()
         uiHelper.attachTo(textureView)
         addDetachListener(textureView)
+    }
+
+    constructor(surfaceHolder: SurfaceHolder, context: Context, engine: Engine = Engine.create(), manipulator: Manipulator? = null) : this(engine) {
+        cameraManipulator = manipulator ?: Manipulator.Builder()
+                .targetPosition(kDefaultObjectPosition.x, kDefaultObjectPosition.y, kDefaultObjectPosition.z)
+                .build(Manipulator.Mode.ORBIT)
+
+        this.surfaceHolder = surfaceHolder
+        // We don't know the height of the View yet. Use 0 for now, this will get updated in the
+        // onResized callback.
+        gestureDetector = GestureDetector(0, cameraManipulator)
+        displayHelper = DisplayHelper(context)
+        uiHelper.renderCallback = SurfaceHolderCallback()
+        uiHelper.attachTo(surfaceHolder)
     }
 
     /**
@@ -344,6 +363,36 @@ class ModelViewer(val engine: Engine) : android.view.View.OnTouchListener {
             val aspect = width.toDouble() / height.toDouble()
             camera.setProjection(kFovDegrees, aspect, kNearPlane, kFarPlane, Camera.Fov.VERTICAL)
             cameraManipulator.setViewport(width, height)
+        }
+    }
+
+    inner class SurfaceHolderCallback : UiHelper.RendererCallback {
+        override fun onNativeWindowChanged(surface: Surface) {
+            swapChain?.let { engine.destroySwapChain(it) }
+            swapChain = engine.createSwapChain(surface)
+            surfaceView?.let { displayHelper.attach(renderer, it.display) }
+            textureView?.let { displayHelper.attach(renderer, it.display) }
+            // TODO: create gestureDetector when view exists
+            // gestureDetector = GestureDetector(surface.vi, cameraManipulator)
+            // TODO:
+            // addDetachListener(surfaceHolder)
+        }
+
+        override fun onDetachedFromSurface() {
+            displayHelper.detach()
+            swapChain?.let {
+                engine.destroySwapChain(it)
+                engine.flushAndWait()
+                swapChain = null
+            }
+        }
+
+        override fun onResized(width: Int, height: Int) {
+            view.viewport = Viewport(0, 0, width, height)
+            val aspect = width.toDouble() / height.toDouble()
+            camera.setProjection(kFovDegrees, aspect, kNearPlane, kFarPlane, Camera.Fov.VERTICAL)
+            cameraManipulator.setViewport(width, height)
+            gestureDetector.height = height
         }
     }
 

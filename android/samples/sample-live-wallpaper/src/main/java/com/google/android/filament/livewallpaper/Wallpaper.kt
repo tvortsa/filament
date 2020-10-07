@@ -23,19 +23,14 @@ import android.graphics.PixelFormat
 import android.opengl.Matrix
 import android.service.wallpaper.WallpaperService
 import android.util.Log
-import android.view.Choreographer
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.WindowManager
+import android.view.*
 import android.view.animation.LinearInterpolator
 import com.google.android.filament.*
+import com.google.android.filament.View
 import com.google.android.filament.android.DisplayHelper
 import com.google.android.filament.android.UiHelper
 import com.google.android.filament.gltfio.*
-import com.google.android.filament.utils.Mat4
-import com.google.android.filament.utils.MatrixColumn
-import com.google.android.filament.utils.Utils
-import com.google.android.filament.utils.perspective
+import com.google.android.filament.utils.*
 import java.nio.ByteBuffer
 import java.util.Arrays.copyOf
 
@@ -59,6 +54,8 @@ class FilamentLiveWallpaper : WallpaperService() {
         private lateinit var displayHelper: DisplayHelper
         // Choreographer is used to schedule new frames
         private lateinit var choreographer: Choreographer
+
+        private lateinit var modelViewer: ModelViewer
 
         // Engine creates and destroys Filament resources
         // Each engine must be accessed from a single thread of your choosing
@@ -98,7 +95,9 @@ class FilamentLiveWallpaper : WallpaperService() {
 
             choreographer = Choreographer.getInstance()
 
-            displayHelper = DisplayHelper(this@FilamentLiveWallpaper)
+            modelViewer = ModelViewer(surfaceHolder, this@FilamentLiveWallpaper)
+
+            //displayHelper = DisplayHelper(this@FilamentLiveWallpaper)
 
             setupUiHelper()
             setupFilament()
@@ -106,14 +105,15 @@ class FilamentLiveWallpaper : WallpaperService() {
             setupScene()
 
             // Load the glTF asset
-            assetLoader = AssetLoader(engine, MaterialProvider(engine), EntityManager.get())
-            resourceLoader = ResourceLoader(engine, false, true)
+            // assetLoader = AssetLoader(engine, MaterialProvider(engine), EntityManager.get())
+            // resourceLoader = ResourceLoader(engine, false, true)
 
             // Always add a direct light source since it is required for shadowing.
             // We highly recommend adding an indirect light as well.
 
-            light = EntityManager.get().create()
+            // light = EntityManager.get().create()
 
+            /*
             val (r, g, b) = Colors.cct(6_500.0f)
             LightManager.Builder(LightManager.Type.DIRECTIONAL)
                     .color(r, g, b)
@@ -123,13 +123,19 @@ class FilamentLiveWallpaper : WallpaperService() {
                     .build(engine, light!!)
 
             scene.addEntity(light!!)
+             */
 
-            val buffer = assets.open("models/rollinghills.glb").use { input ->
+            // TODO: move to createRenderables()
+            val buffer = assets.open("models/scene.gltf").use { input ->
                 val bytes = ByteArray(input.available())
                 input.read(bytes)
                 ByteBuffer.wrap(bytes)
             }
 
+            modelViewer.loadModelGltfAsync(buffer) { uri -> readCompressedAsset("models/$uri") }
+            modelViewer.transformToUnitCube()
+
+            /*
             asset = assetLoader.createAssetFromBinary(buffer)
             asset?.let { asset ->
                 resourceLoader.loadResources(asset)
@@ -242,6 +248,19 @@ class FilamentLiveWallpaper : WallpaperService() {
 
                 }
             }
+             */
+        }
+
+        override fun onTouchEvent(event: MotionEvent?) {
+            super.onTouchEvent(event)
+            event?.let { modelViewer.onTouchEvent(it) }
+        }
+
+        private fun readCompressedAsset(assetName: String): ByteBuffer {
+            val input = assets.open(assetName)
+            val bytes = ByteArray(input.available())
+            input.read(bytes)
+            return ByteBuffer.wrap(bytes)
         }
 
         private fun setupUiHelper() {
@@ -343,12 +362,17 @@ class FilamentLiveWallpaper : WallpaperService() {
                 // Schedule the next frame
                 choreographer.postFrameCallback(this)
 
+                /*
                 if (assetAnimator.animationCount > 0) {
                     val elapsedTimeSeconds = (frameTimeNanos - startTime).toDouble() / 1_000_000_000 / 4.0
                     assetAnimator.applyAnimation(0, elapsedTimeSeconds.toFloat())
                 }
+                 */
+
+                modelViewer.render(frameTimeNanos)
 
                 // This check guarantees that we have a swap chain
+                /*
                 if (uiHelper.isReadyToRender) {
                     // If beginFrame() returns false you should skip the frame
                     // This means you are sending frames too quickly to the GPU
@@ -357,6 +381,7 @@ class FilamentLiveWallpaper : WallpaperService() {
                         renderer.endFrame()
                     }
                 }
+                 */
             }
         }
 
@@ -364,14 +389,16 @@ class FilamentLiveWallpaper : WallpaperService() {
             override fun onNativeWindowChanged(surface: Surface) {
                 swapChain?.let { engine.destroySwapChain(it) }
                 swapChain = engine.createSwapChain(surface)
+                /*
                 val display =
                         (application.getSystemService(Service.WINDOW_SERVICE) as WindowManager)
                         .defaultDisplay
                 displayHelper.attach(renderer, display)
+                 */
             }
 
             override fun onDetachedFromSurface() {
-                displayHelper.detach()
+                //displayHelper.detach()
                 swapChain?.let {
                     engine.destroySwapChain(it)
                     // Required to ensure we don't return before Filament is done executing the

@@ -7,7 +7,7 @@ project.ext.isSample = true
 
 // TODO: get rid of this before PR
 task copyMesh(type: Copy) {
-    from "/Users/bendoherty/Desktop/2020-10-06_WallpaperRollingHills/blender/rollinghills.glb"
+    from "../../../third_party/models/BusterDrone"
     into "src/main/assets/models"
 }
 

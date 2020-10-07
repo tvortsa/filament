@@ -24,7 +24,8 @@ import java.util.*
  * Responds to Android touch events and manages a camera manipulator.
  * Supports one-touch orbit, two-touch pan, and pinch-to-zoom.
  */
-class GestureDetector(private val view: View, private val manipulator: Manipulator) {
+// TODO: this doesn't need to take in a View
+class GestureDetector(var height: Int, private val manipulator: Manipulator) {
     private enum class Gesture { NONE, ORBIT, PAN, ZOOM }
 
     // Simplified memento of MotionEvent, minimal but sufficient for our purposes.
@@ -59,7 +60,7 @@ class GestureDetector(private val view: View, private val manipulator: Manipulat
     private val kZoomSpeed = 1f / 10f
 
     fun onTouchEvent(event: MotionEvent) {
-        val touch = TouchPair(event, view.height)
+        val touch = TouchPair(event, height)
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
 
