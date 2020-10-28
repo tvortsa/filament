@@ -77,6 +77,7 @@ FView::FView(FEngine& engine)
     mPerViewUbh = driver.createUniformBuffer(mPerViewUb.getSize(), backend::BufferUsage::DYNAMIC);
     mLightUbh = driver.createUniformBuffer(CONFIG_MAX_LIGHT_COUNT * sizeof(LightsUib), backend::BufferUsage::DYNAMIC);
     mShadowUbh = driver.createUniformBuffer(mShadowUb.getSize(), backend::BufferUsage::DYNAMIC);
+    mFroxelUbh = driver.createUniformBuffer(FroxelUib::getUib().getSize(), backend::BufferUsage::DYNAMIC);
 
     mIsDynamicResolutionSupported = driver.isFrameTimeSupported();
 
@@ -347,6 +348,7 @@ void FView::prepareLighting(FEngine& engine, FEngine::DriverApi& driver, ArenaSc
     if (mHasDynamicLighting) {
         Froxelizer& froxelizer = mFroxelizer;
         if (froxelizer.prepare(driver, arena, viewport, camera.projection, camera.zn, camera.zf)) {
+            // TODO: This is misleading now
             froxelizer.updateUniforms(u); // update our uniform buffer if needed
         }
     }
@@ -712,6 +714,13 @@ void FView::commitUniforms(backend::DriverApi& driver) const noexcept {
 
 void FView::commitFroxels(backend::DriverApi& driverApi) const noexcept {
     if (mHasDynamicLighting) {
+        // Do this before commit.
+        auto& froxelBufferUser = mFroxelizer.getFroxelBufferUser();
+        const size_t size = froxelBufferUser.sizeInBytes();
+        void* const buffer = driverApi.allocate(size);
+        memcpy(buffer, froxelBufferUser.data(), size);
+        driverApi.loadUniformBuffer(mFroxelUbh, { buffer, size });
+
         mFroxelizer.commit(driverApi);
     }
 }

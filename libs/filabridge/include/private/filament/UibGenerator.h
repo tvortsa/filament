@@ -33,6 +33,7 @@ public:
     static UniformInterfaceBlock const& getLightsUib() noexcept;
     static UniformInterfaceBlock const& getShadowUib() noexcept;
     static UniformInterfaceBlock const& getPerRenderableBonesUib() noexcept;
+    static UniformInterfaceBlock const& getFroxelUib() noexcept;
 };
 
 /*
@@ -177,6 +178,19 @@ struct PerRenderableUibBone {
     filament::math::float4 s = { 1, 1, 1, 0 };
     filament::math::float4 ns = { 1, 1, 1, 0 };
 };
+
+struct FroxelUib {
+    static const UniformInterfaceBlock& getUib() noexcept {
+        return UibGenerator::getFroxelUib();
+    }
+
+    filament::math::uint4 f;
+};
+
+static_assert(sizeof(FroxelUib) == 16);
+
+// Froxel buffer size is 32768
+// Froxel Uib array length is 32768 / 16 = 2048
 
 } // namespace filament
 

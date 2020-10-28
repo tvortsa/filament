@@ -49,8 +49,8 @@ static constexpr uint64_t SWAP_CHAIN_CONFIG_APPLE_CVPIXELBUFFER = 0x8;
 static constexpr size_t MAX_VERTEX_ATTRIBUTE_COUNT = 16; // This is guaranteed by OpenGL ES.
 static constexpr size_t MAX_SAMPLER_COUNT = 16;          // Matches the Adreno Vulkan driver.
 
-static constexpr size_t CONFIG_UNIFORM_BINDING_COUNT = 6;
-static constexpr size_t CONFIG_SAMPLER_BINDING_COUNT = 6;
+static constexpr size_t CONFIG_UNIFORM_BINDING_COUNT = 7;
+static constexpr size_t CONFIG_SAMPLER_BINDING_COUNT = 7;
 
 /**
  * Selects which driver a particular Engine should use.

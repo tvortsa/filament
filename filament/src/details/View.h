@@ -441,6 +441,8 @@ private:
         driver.bindUniformBuffer(BindingPoints::PER_VIEW, mPerViewUbh);
         driver.bindUniformBuffer(BindingPoints::LIGHTS, mLightUbh);
         driver.bindUniformBuffer(BindingPoints::SHADOW, mShadowUbh);
+        // TODO: unbind and deallocate ub
+        driver.bindUniformBuffer(BindingPoints::FROXELS, mFroxelUbh);
         driver.bindSamplers(BindingPoints::PER_VIEW, mPerViewSbh);
     }
 
@@ -461,6 +463,7 @@ private:
     backend::Handle<backend::HwUniformBuffer> mLightUbh;
     backend::Handle<backend::HwUniformBuffer> mShadowUbh;
     backend::Handle<backend::HwUniformBuffer> mRenderableUbh;
+    backend::Handle<backend::HwUniformBuffer> mFroxelUbh;
 
     FScene* mScene = nullptr;
     FCamera* mCullingCamera = nullptr;

@@ -63,7 +63,26 @@ ivec2 getFroxelTexCoord(uint froxelIndex) {
  */
 FroxelParams getFroxelParams(uint froxelIndex) {
     ivec2 texCoord = getFroxelTexCoord(froxelIndex);
-    uvec2 entry = texelFetch(light_froxels, texCoord, 0).rg;
+    uvec2 correctEntry = texelFetch(light_froxels, texCoord, 0).rg;
+
+    highp uint froxelI = texCoord.y * 64u + texCoord.x;
+    highp uint r = froxelI / 4u;
+    // TODO: we can rewrite this better.
+    highp uint c = uint(mod(froxelI, 4u));
+
+    highp uvec2 entry;
+    highp uint f;
+    if (c == 0) {
+        f = froxels.froxel[r].x;
+    } else if (c == 1) {
+        f = froxels.froxel[r].y;
+    } else if (c == 2) {
+        f = froxels.froxel[r].z;
+    } else if (c == 3) {
+        f = froxels.froxel[r].w;
+    }
+    entry.r = f & 0xFFFFu;
+    entry.g = f >> 16u;
 
     FroxelParams froxel;
     froxel.recordOffset = entry.r;
