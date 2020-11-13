@@ -62,7 +62,11 @@ ivec2 getFroxelTexCoord(uint froxelIndex) {
  * from the light_froxels texture.
  */
 FroxelParams getFroxelParams(uint froxelIndex) {
+    /*
     ivec2 texCoord = getFroxelTexCoord(froxelIndex);
+
+    //texCoord.y = (128 - texCoord.y);
+
     uvec2 correctEntry = texelFetch(light_froxels, texCoord, 0).rg;
 
     highp uint froxelI = texCoord.y * 64u + texCoord.x;
@@ -87,6 +91,8 @@ FroxelParams getFroxelParams(uint froxelIndex) {
     FroxelParams froxel;
     froxel.recordOffset = entry.r;
     froxel.count = entry.g & 0xFFu;
+    */
+    FroxelParams froxel;
     return froxel;
 }
 

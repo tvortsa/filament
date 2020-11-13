@@ -184,7 +184,7 @@ struct FroxelUib {
         return UibGenerator::getFroxelUib();
     }
 
-    filament::math::uint4 f;
+    filament::math::float4 f;
 };
 
 static_assert(sizeof(FroxelUib) == 16);

@@ -718,8 +718,20 @@ void FView::commitFroxels(backend::DriverApi& driverApi) const noexcept {
         auto& froxelBufferUser = mFroxelizer.getFroxelBufferUser();
         const size_t size = froxelBufferUser.sizeInBytes();
         void* const buffer = driverApi.allocate(size);
-        memcpy(buffer, froxelBufferUser.data(), size);
-        driverApi.loadUniformBuffer(mFroxelUbh, { buffer, size });
+        //memcpy(buffer, froxelBufferUser.data(), size);
+        filament::math::uint4* f = (filament::math::uint4*)buffer;
+        f->x = 1;
+        f->y = 2;
+        f->z = 3;
+        f->w = 4;
+        //driverApi.loadUniformBuffer(mFroxelUbh, { buffer, size });
+        static filament::math::float4 foo[64];
+        static_assert(sizeof(filament::math::float4) == 16);
+        foo[0].x = 1;
+        foo[0].y = 2;
+        foo[0].z = 3;
+        foo[0].w = 4;
+        driverApi.loadUniformBuffer(mFroxelUbh, { &foo, sizeof(filament::math::float4) * 64 });
 
         mFroxelizer.commit(driverApi);
     }

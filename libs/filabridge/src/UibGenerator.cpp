@@ -157,7 +157,7 @@ UniformInterfaceBlock const& UibGenerator::getPerRenderableBonesUib() noexcept {
 UniformInterfaceBlock const& UibGenerator::getFroxelUib() noexcept {
     static UniformInterfaceBlock uib = UniformInterfaceBlock::Builder()
             .name("Froxels")
-            .add("froxel", 2048, UniformInterfaceBlock::Type::UINT4, Precision::HIGH)
+            .add("froxel", 64, UniformInterfaceBlock::Type::FLOAT4, Precision::HIGH)
             .build();
     return uib;
 }

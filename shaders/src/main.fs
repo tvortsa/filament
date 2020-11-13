@@ -40,6 +40,10 @@ void main() {
     fragColor = fog(fragColor, view);
 #endif
 
+#if defined(HAS_DYNAMIC_LIGHTING)
+    fragColor.rgb = uintToColorDebug(uint(froxels.froxel[0].x));
+#endif
+
 #if defined(MATERIAL_HAS_POST_LIGHTING_COLOR)
     blendPostLightingColor(inputs, fragColor);
 #endif
