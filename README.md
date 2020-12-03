@@ -7,22 +7,22 @@
 [![Windows Build Status](https://github.com/google/filament/workflows/Windows/badge.svg)](https://github.com/google/filament/actions?query=workflow%3AWindows)
 [![Web Build Status](https://github.com/google/filament/workflows/Web/badge.svg)](https://github.com/google/filament/actions?query=workflow%3AWeb)
 
-Filament is a real-time physically based rendering engine for Android, iOS, Linux, macOS, Windows,
-and WebGL. It is designed to be as small as possible and as efficient as possible on Android.
+Filament - это физический движок рендеринга в реальном времени для Android, iOS, Linux, macOS, Windows,
+и WebGL. Он разработан, чтобы быть как можно меньше по размеру и максимально эффективно использовать Android.
 
-## Download
+## Загрузка
 
-[Download Filament releases](https://github.com/google/filament/releases) to access stable builds.
-Filament release archives contains host-side tools that are required to generate assets.
+[Загрузите релиз Filament](https://github.com/google/filament/releases) для доступа к стабильным сборкам.
+Filament release архивы содержат инструменты на стороне хоста, необходимые для создания активов.
 
-Make sure you always use tools from the same release as the runtime library. This is particularly
-important for `matc` (material compiler).
+Убедитесь, что вы всегда используете инструменты из той же версии, что и библиотека времени выполнения. 
+Это особенно важно для `matc` (material compiler).
 
-If you'd rather build Filament yourself, please refer to our [build manual](BUILDING.md).
+Если вы предпочитаете самостоятельно собирать Filament, обратитесь к нашему [build manual](BUILDING.md).
 
 ### Android
 
-Android projects can simply declare Filament libraries as Maven dependencies:
+Android проекты могут просто объявить библиотеки Filament как зависимости Maven:
 
 ```gradle
 repositories {
@@ -35,32 +35,32 @@ dependencies {
 }
 ```
 
-Here are all the libraries available in the group `com.google.android.filament`:
+Вот все библиотеки, доступные в группе `com.google.android.filament`:
 
 [![filament-android](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-android/badge.svg?subject=filament-android)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-android)  
-The Filament rendering engine itself.
+Собственно движок рендеринга Filament.
 
 [![gltfio-android](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/gltfio-android/badge.svg?subject=gltfio-android)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/gltfio-android)  
-A glTF 2.0 loader for Filament, depends on `filament-android`  .
+Загрузчик glTF 2.0 для Filament, зависящий от `filament-android`  .
 
 [![gltfio-android-lite](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/gltfio-android-lite/badge.svg?subject=gltfio-android-lite)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/gltfio-android-lite)  
-Trimmed version of `gltfio` that does not support some glTF features.
+Урезанная версия `gltfio` не поддерживающая некоторые фичи glTF.
 
 [![filament-utils-android](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-utils-android/badge.svg?subject=filament-utils-android)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-utils-android)  
 KTX loading, Kotlin math, and camera utilities, depends on `gltfio-android`.
 
 [![filament-utils-android-lite](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-utils-android-lite/badge.svg?subject=filament-utils-lite)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filament-utils-android-lite)  
-Trimmed version of `filament-utils` that does not support some glTF features.
+Урезанная версия `filament-utils` не поддерживающая некоторые фичи glTF.
 
 [![filamat-android](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filamat-android/badge.svg?subject=filamat-android)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filamat-android)  
-A runtime material builder/compiler. This library is large but contains a full shader compiler/validator/optimizer.
+Построитель / компилятор материалов во время выполнения. Эта библиотека большая, но содержит полный компилятор / валидатор / оптимизатор шейдеров..
 
 [![filamat-android-lite](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filamat-android-lite/badge.svg?subject=filamat-android-lite)](https://maven-badges.herokuapp.com/maven-central/com.google.android.filament/filamat-android-lite)  
-A much smaller alternative to `filamat-android` that can only generate OpenGL shaders. It does not provide validation or optimizations.
+Уменьшенная альтернатива `filamat-android` который может генерировать только шейдеры OpenGL. Он не обеспечивает проверки или оптимизации.
 
 ### iOS
 
-iOS projects can use CocoaPods to install the latest release:
+iOS проекты могут использовать CocoaPods для установки последней версии:
 
 ```
 pod 'Filament', '~> 1.9.9'
@@ -68,8 +68,7 @@ pod 'Filament', '~> 1.9.9'
 
 ### Snapshots
 
-If you prefer to live on the edge, you can download a continuous build by following the following
-steps:
+Если вы предпочитаете жить на грани, вы можете загрузить непрерывную сборку, выполнив следующие действия.:
 
 1. Find the [commit](https://github.com/google/filament/commits/main) you're interested in.
 2. Click the green check mark under the commit message.
@@ -78,17 +77,17 @@ steps:
 
 ## Documentation
 
-- [Filament](https://google.github.io/filament/Filament.html), an in-depth explanation of
-  real-time physically based rendering, the graphics capabilities and implementation of Filament.
-  This document explains the math and reasoning behind most of our decisions. This document is a
-  good introduction to PBR for graphics programmers.
-- [Materials](https://google.github.io/filament/Materials.html), the full reference
-  documentation for our material system. This document explains our different material models, how
-  to use the material compiler `matc` and how to write custom materials.
-- [Material Properties](https://google.github.io/filament/Material%20Properties.pdf), a reference
-  sheet for the standard material model.
+- [Filament](https://google.github.io/filament/Filament.html), подробное объяснение 
+  физического рендеринга в реальном времени, графических возможностей и реализации Filament.
+  Этот документ объясняет математические расчеты и обоснование большинства наших решений. 
+  Этот документ - хорошее введение в PBR для программистов графики.
+- [Materials](https://google.github.io/filament/Materials.html), полнописание и документация
+    для нашей системы материалов. В этом документе объясняются наши различные модели материалов,
+    как использовать компилятор материалов `matc` и как писать собственные материалы.
+- [Material Properties](https://google.github.io/filament/Material%20Properties.pdf), таблица
+  ссылок на standard material model.
 
-## Examples
+## Примеры
 
 ![Night scene](docs/images/samples/example_bistro1.jpg)
 ![Night scene](docs/images/samples/example_bistro2.jpg)
@@ -98,9 +97,9 @@ steps:
 ![Screen-space refraction](docs/images/samples/example_ssr.jpg)
 
 
-### Applications
+### Приложения
 
-Here are a few screenshots of applications that use Filament in production:
+Вот несколько скриншотов приложений, которые используют Filament в производстве.:
 
 #### Google Maps AR Navigation
 
@@ -130,13 +129,13 @@ Here are a few screenshots of applications that use Filament in production:
 
 - Clustered forward renderer
 - Cook-Torrance microfacet specular BRDF
-- Lambertian diffuse BRDF
+- Ламбертовский диффузный BRDF
 - HDR/linear lighting
 - Metallic workflow
 - Clear coat
 - Anisotropic lighting
-- Approximated translucent (subsurface) materials
-- Cloth shading
+- Приблизительные полупрозрачные (подповерхностные) материалы
+- Затенение ткани
 - Normal mapping & ambient occlusion mapping
 - Image-based lighting
 - Physically-based camera (shutter speed, sensitivity and aperture)
@@ -161,8 +160,8 @@ Here are a few screenshots of applications that use Filament in production:
 
 ### Native Linux, macOS and Windows
 
-You must create an `Engine`, a `Renderer` and a `SwapChain`. The `SwapChain` is created from a
-native window pointer (an `NSView` on macOS or a `HWND` on Windows for instance):
+Вы должны создать `Engine`, `Renderer` и `SwapChain`. `SwapChain` создается из
+native window pointer (`NSView` в macOS или `HWND` в Windows например):
 
 ```c++
 Engine* engine = Engine::create();
@@ -170,7 +169,7 @@ SwapChain* swapChain = engine->createSwapChain(nativeWindow);
 Renderer* renderer = engine->createRenderer();
 ```
 
-To render a frame you must then create a `View`, a `Scene` and a `Camera`:
+Для рендеринга кадра вы должны затем создать `View`, `Scene` и `Camera`:
 
 ```c++
 Camera* camera = engine->createCamera(EntityManager::get().create());
@@ -181,7 +180,7 @@ view->setCamera(camera);
 view->setScene(scene);
 ```
 
-Renderables are added to the scene:
+Renderables добавлены в сцену:
 
 ```c++
 Entity renderable = EntityManager::get().create();
@@ -195,8 +194,8 @@ RenderableManager::Builder(1)
 scene->addEntity(renderable);
 ```
 
-The material instance is obtained from a material, itself loaded from a binary blob generated
-by `matc`:
+Экземпляр материала получается из материала, который сам загружается из сгенерированного 
+двоичного объекта `matc`:
 
 ```c++
 Material* material = Material::Builder()
@@ -208,7 +207,7 @@ MaterialInstance* materialInstance = material->createInstance();
 To learn more about materials and `matc`, please refer to the
 [materials documentation](./docs/Materials.md.html).
 
-To render, simply pass the `View` to the `Renderer`:
+Для рендеринга просто передайте `View` в `Renderer`:
 
 ```c++
 // beginFrame() returns false if we need to skip a frame
@@ -219,11 +218,11 @@ if (renderer->beginFrame(swapChain)) {
 }
 ```
 
-For complete examples of Linux, macOS and Windows Filament applications, look at the source files
-in the `samples/` directory. These samples are all based on `samples/app/` which contains the code
-that creates a native window with SDL2 and initializes the Filament engine, renderer and views.
+Для полных примеров Linux, macOS и Windows Filament приложений, смотрите исходные файлы
+в папке `samples/` directory. Все эти образцы основаны на `samples/app/` которые содержат код
+созданный нативным window с SDL2 и initializes the Filament engine, renderer и views.
 
-### Java on Linux, macOS and Windows
+### Java в Linux, macOS и Windows
 
 After building Filament, you can use `filament-java.jar` and its companion `filament-jni` native
 library to use Filament in desktop Java applications.
@@ -262,8 +261,8 @@ OpenGL ES.
 
 ## Assets
 
-To get started you can use the textures and environment maps found respectively in
-`third_party/textures` and `third_party/environments`. These assets are under CC0 license. Please
+Для начала вы можете использовать текстуры и карты окружения соответственно в
+`third_party/textures` и `third_party/environments`. These assets are under CC0 license. Please
 refer to their respective `URL.txt` files to know more about the original authors.
 
 ## How to make contributions
@@ -273,8 +272,8 @@ familiar with the [code style](/CODE_STYLE.md).
 
 ## Directory structure
 
-This repository not only contains the core Filament engine, but also its supporting libraries
-and tools.
+Этот репозиторий содержит не только основной движок Filament, но и его вспомогательные библиотеки
+и инструменты..
 
 - `android`:                  Android libraries and projects
   - `filamat-android`:        Filament material generation library (AAR) for Android
